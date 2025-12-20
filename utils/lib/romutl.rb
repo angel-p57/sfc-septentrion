@@ -32,7 +32,7 @@ class SepRom
     }
   end
   def getbyte(bank,addr)
-    getbyte(bank,addr,1)[0]
+    getbytes(bank,addr,1)[0]
   end
   def getword(bank,addr)
     getwords(bank,addr,1)[0]
