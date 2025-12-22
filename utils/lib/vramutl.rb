@@ -22,6 +22,18 @@ class VRAMmgr
       }
     }
   end
+  def get4bpptiles8(id)
+    raw=getraw_unc(id)
+    warn "invalid raw size #{raw.size} for id #{id}" unless raw.size%32==0
+    tiles=raw.each_slice(32).map{|bs|
+      8.times.map{|i|
+        b0,b1,b2,b3=bs[i*2],bs[i*2+1],bs[i*2+16],bs[i*2+17]
+        8.times.map{|j|
+          b0[7-j]+b1[7-j]*2+b2[7-j]+b3[7-j]
+        }
+      }
+    }
+  end
   def get2bpptiles16(id)
     tiles8=get2bpptiles8(id)
     warn "invalid tile number #{tiles8.size} for id #{id}" unless tiles8.size%16==0
