@@ -5,7 +5,7 @@ romfile=ARGV[0]||SepRom::DEFAULT_ROM_PATH
 romobj=SepRom.new(romfile)
 vmgr=VRAMmgr.new(romobj)
 
-[0,4].each{|i|
+[0,4,43,44,45,46,47,48,49,53,311,312,314,315,327,335].each{|i|
   puts "** vdata #{i} **"
   tiles=vmgr.get4bpptiles8(i)
   tiles.each_slice(16).with_index{|st,j|
