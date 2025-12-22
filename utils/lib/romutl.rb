@@ -31,11 +31,21 @@ class SepRom
       bh<<8|bl
     }
   end
+  def getlwords(bank,addr,len)
+    bytes=getbytes(bank,addr,len*3)
+    (0...len).map{|i|
+      bl,bh=bytes[i*3,2]
+      [bytes[i*3+2],bh<<8|bl]
+    }
+  end
   def getbyte(bank,addr)
     getbytes(bank,addr,1)[0]
   end
   def getword(bank,addr)
     getwords(bank,addr,1)[0]
+  end
+  def getlword(bank,addr)
+    getlwords(bank,addr,1)[0]
   end
   def getline(bank,addr,delimiter=0xff,delim_include=false)
     off=self.class.addr2off(bank,addr)
