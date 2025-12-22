@@ -29,7 +29,7 @@ class VRAMmgr
       8.times.map{|i|
         b0,b1,b2,b3=bs[i*2],bs[i*2+1],bs[i*2+16],bs[i*2+17]
         8.times.map{|j|
-          b0[7-j]+b1[7-j]*2+b2[7-j]+b3[7-j]
+          b0[7-j]+b1[7-j]*2+b2[7-j]*4+b3[7-j]*8
         }
       }
     }
