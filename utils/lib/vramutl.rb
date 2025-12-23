@@ -42,4 +42,13 @@ class VRAMmgr
       parts[0].zip(parts[1]).map{|(r1,r2)| r1+r2 } + parts[2].zip(parts[3]).map{|(r1,r2)| r1+r2 }
     }
   end
+  def getspcolors(pid)
+    bank,base=@rom.getlword(0x80, 0xf800)
+    addr=@rom.getword(bank, base+2)
+    words=@rom.getwords(bank, addr+2+pid*30, 15)
+    [
+      nil,
+      *words.map{|x| [x&31, (x>>5)&31, x>>10] }
+    ]
+  end
 end
