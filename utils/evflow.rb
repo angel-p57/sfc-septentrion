@@ -104,9 +104,9 @@ class EvFlow
         end
         cret=apply_commands(off,state,en4)
         change.push(*cret) if cret
+        break if cid_int
         if en4 && state[?e]
-          cid_int=cid_s+1
-          break
+          cid_int=cid_s+2
         end
       }
       change=change.sort.uniq
