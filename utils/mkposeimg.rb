@@ -16,16 +16,15 @@ bg=mkpixel[10,10,10,true]
 rline=mkpixel[31,0,0]
 blank1=mkpixel[16,16,16]
 blank2=mkpixel[8,8,8]
+blank3=mkpixel[30,16,24]
 lcol=mkpixel[ 0,20,20]
 ipallet=[
   nil,
   *8.times.flat_map{|pid|
     vmgr.getspcolors(pid)[1..-1].map{|r| mkpixel[*r] }
   },
-  blank1,blank2
+  blank1,blank2,blank3
 ]
-btile1=[[121]*64]*64
-btile2=[[122]*64]*64
 
 tiles2file=->tiles,file,dotsize=3{
   rown=tiles.size/16
@@ -96,32 +95,47 @@ pmgr=PartsMgr.new(romobj)
 PartsMgr::CGID_RANGE.each{|cgid|
   ptab = pmgr.getpaddrtab(cgid)
   pidmax=ptab.keys.max
-  pnum = pidmax/16*16 + 16
-  ps=[[btile1,-1,-1]]*pidmax+[[btile2,-1,-1]]*(pnum-pidmax)
+  bpartss=(121..123).map{|px| [[[[px]*64]*64,-1,-1]] }
+  ps=(
+    cgid>=25 ?
+      [[0,pidmax+1],[1,(-pidmax-1)%16]] :
+    pidmax>=192 ?
+      [[0,176],[2,16],[0,16],[2,16],[0,pidmax-191],[1,(-pidmax-1)%16]] :
+      [[0,176],[2,16],[0,pidmax-175],[1,(-pidmax-1)%16],[2,16]]
+  ).reduce([]){|s,(i,n)| s+bpartss[i]*n }
   ptab.each{|pid,(bank,addr)|
-    xi,xs,yi,ys,parts=pmgr.getparts(bank,addr)
-    xi=0 if xi>0
-    yi=0 if yi>0
-    xs=0 if xs<0
-    ys=0 if ys<0
-    xbase=(64-xs-xi)/2
-    ybase=ys-yi>64 ? 62-ys : (64-ys-yi)/2
-    itile=64.times.map{[0]*64}
-    eid=geteid[cgid,pid]
-    parts.each{|part|
-      tile=gettile[part.tid,part.pid,eid,part.quad]
-      x,y=part.x+xbase,part.y+ybase
-      (part.quad ? 16 : 8).times{|dy|
-        next if dy+y<0
-        dyc=part.vrev ? (part.quad ? 15 : 7)-dy : dy
-        (part.quad ? 16 : 8).times{|dx|
-          next if itile[y+dy][x+dx]!=0
-          dxc=part.hrev ? (part.quad ? 15 : 7)-dx : dx
-          itile[y+dy][x+dx]=tile[dyc][dxc]
+    dids=[nil]
+    if (168...177)===pid
+      dids << (cgid*9+pid-168)
+    elsif (177...186)===pid
+      dids << (cgid*9+pid+48)
+    end
+    dids.each{|did|
+      xi,xs,yi,ys,parts=pmgr.getparts(bank,addr,did)
+      xi=0 if xi>0
+      yi=0 if yi>0
+      xs=0 if xs<0
+      ys=0 if ys<0
+      xbase=(64-xs-xi)/2
+      ybase=ys-yi>64 ? 62-ys : (64-ys-yi)/2
+      itile=64.times.map{[0]*64}
+      eid=geteid[cgid,pid]
+      parts.each{|part|
+        tile=gettile[part.tid,part.pid,eid,part.quad]
+        x,y=part.x+xbase,part.y+ybase
+        (part.quad ? 16 : 8).times{|dy|
+          next if dy+y<0
+          dyc=part.vrev ? (part.quad ? 15 : 7)-dy : dy
+          (part.quad ? 16 : 8).times{|dx|
+            next if itile[y+dy][x+dx]!=0
+            dxc=part.hrev ? (part.quad ? 15 : 7)-dx : dx
+            itile[y+dy][x+dx]=tile[dyc][dxc]
+          }
         }
       }
+      pid_c=pid+(pid<176 ? 0 : pid<192 ? 16 : 32)+(did ? 16 : 0)
+      ps[pid_c]=[itile,ybase,xbase]
     }
-    ps[pid]=[itile,ybase,xbase]
   }
   tiles2file[ps,"pose-%02d.png"%cgid]
 } 

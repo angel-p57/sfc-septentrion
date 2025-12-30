@@ -5,6 +5,9 @@ class PartsMgr
   Part=Struct.new(:tid, :pid, :x, :y, :quad, :hrev, :vrev) {
     #WIP
   }
+  @@diffidmap={
+    0=>0, 1=>1, 2=>2, 5=>3, 
+  }
   def initialize(romobj)
     @rom=romobj
   end
@@ -24,7 +27,7 @@ class PartsMgr
       prev=addr
     }
   end
-  def getparts_aux(bank, addr, dx=0, dy=0, n=255)
+  def getparts_aux(bank, addr, did, off=0, dx=0, dy=0, n=255)
     parts=[]
     xinf=yinf=256
     xsup=ysup=-256
@@ -35,7 +38,7 @@ class PartsMgr
       if flag>=0xc0
         break
       elsif flag>=0x40
-        xi,xs,yi,ys,aparts=getparts_aux(bank,(p2<<8)|p1,dx+x,dy+y,flag&63)
+        xi,xs,yi,ys,aparts=getparts_aux(bank,(p2<<8)|p1,did,parts.size,dx+x,dy+y,flag&63)
         parts+=aparts
         xinf=xi if xi<xinf
         yinf=yi if yi<yinf
@@ -43,6 +46,17 @@ class PartsMgr
         ysup=ys if ys>ysup
         break if flag>=0x80
       else
+        if did
+          i=off+parts.size
+          j=@@diffidmap[i]
+          if j
+            ddy,ddx,dp1,dp2=@rom.getbytes(0x9e,0x8000+did*16+j*4,4)
+            x+=ddx>=128 ? 128-ddx : ddx
+            y+=ddy>=128 ? 128-ddy : ddy
+            p1^=dp1
+            p2^=dp2
+          end
+        end
         part=Part.new(
           p2&1==0 ? p1 : p1+256,
           (p2&0xe)>>1,
@@ -65,7 +79,7 @@ class PartsMgr
     end
     [xinf,xsup,yinf,ysup,parts]
   end
-  def getparts(bank, addr)
-    getparts_aux(bank, addr)
+  def getparts(bank, addr, did=nil)
+    getparts_aux(bank, addr, did)
   end
 end
