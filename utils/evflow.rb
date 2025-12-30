@@ -14,7 +14,9 @@ class EvFlow
         true
       elsif k[0]==?x
         c=k[1..-1].to_i
-        if !@dead[c]
+        if state["r#{c}"]
+          false
+        elsif !@dead[c]
           true
         elsif @done.include?(c)
           false
