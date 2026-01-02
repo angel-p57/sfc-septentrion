@@ -56,7 +56,7 @@ sptiles[448...480]=[btile]*32
 8.times{|pid|
   tiles2file[sptiles, "spbase-p#{pid}.png", pid]
 }
-sptiles_ex=[43,44,45,46,47,48,49,53,314,315,327,335].flat_map{|i|
+sptiles_ex=[*43..55,314,315,327,335].flat_map{|i|
   tiles=vmgr.get4bpptiles8(i)
   tiles+[btile]*16
 }
