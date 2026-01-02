@@ -13,11 +13,12 @@ mkpixel=->r,g,b,t=false{
 }
 bg=mkpixel[10,10,10,true]
 blank=mkpixel[16,16,16]
-pallets=8.times.map{|pid|
-  vmgr.getspcolors(pid).map{|r|
+pallets=9.times.map{|pid|
+  vmgr.getspcolors(pid < 8 ? pid : 0).map{|r|
     r && mkpixel[*r]
-  } + [blank]
+  } << blank
 }
+pallets[8][12,2]=[mkpixel[31,31,31],mkpixel[0,0,31]]
 lcol=mkpixel[ 0,20,20]
 btile=[[16]*8]*8
 
@@ -58,8 +59,10 @@ sptiles[448...480]=[btile]*32
 }
 sptiles_ex=[*43..55,314,315,327,335].flat_map{|i|
   tiles=vmgr.get4bpptiles8(i)
-  tiles+[btile]*16
+  i==335 ? tiles : tiles+[btile]*16
 }
 8.times{|pid|
   tiles2file[sptiles_ex, "spex-p#{pid}.png", pid]
 }
+sptiles_map=vmgr.get4bpptiles8(312)
+tiles2file[sptiles_map, "spex-map-p0+.png", 8]
