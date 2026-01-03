@@ -8,12 +8,10 @@ romobj=SepRom.new(romfile)
 vmgr=VRAMmgr.new(romobj)
 
 mkpixel=->r,g,b,t=false{ ImgManager.mkpixel(r,g,b,t) }
-bg=mkpixel[10,10,10,true]
 rline=mkpixel[31,0,0]
 blank1=mkpixel[16,16,16]
 blank2=mkpixel[8,8,8]
 blank3=mkpixel[30,16,24]
-lcol=mkpixel[ 0,20,20]
 ipallet=[
   nil,
   *8.times.flat_map{|pid|
@@ -24,32 +22,21 @@ ipallet=[
 
 tiles2file=->tiles,file,dotsize=3{
   rown=tiles.size/16
-  csizeh=1024*dotsize+17
-  csizev=64*rown*dotsize+rown+1
-  canvas=csizev.times.flat_map{|i|
-    i%(dotsize*64+1)==0 ? [lcol]*csizeh : [lcol,*[bg]*(64*dotsize)]*16+[lcol]
-  }
-  (rown*16).times{|i|
-    t,jr,kr=tiles[i]
-    r0=i/16*(dotsize*64+1)+1
-    c0=i%16*(dotsize*64+1)+1
-    64.times{|j|
-      r=r0+j*dotsize
-      64.times{|k|
-        b=r*csizeh+c0+k*dotsize
-        color=ipallet[t[j][k]]
-        if color
-          dotsize.times{|n1|
-            dotsize.times{|n2|
-              canvas[b+csizeh*n1+n2]=color
-            }
-          }
-        end
-        canvas[b]=rline if j==jr || k==kr
+  canvas=TiledCanvas.new(64,dotsize,rown,16)
+  rown.times{|r|
+    16.times{|c|
+      t,ir,jr=tiles[r*16+c]
+      win=canvas.makewindow(r,c)
+      64.times{|i|
+        64.times{|j|
+          color=ipallet[t[i][j]]
+          win[i,j]=color if color
+          canvas[r,c,i,j,0,0]=rline if i==ir || j==jr
+        }
       }
     }
   }
-  ImgManager.save(file,canvas,csizeh,csizev)
+  canvas.save(file)
 }
 
 sptiles=vmgr.get4bpptiles8(0)
