@@ -1,4 +1,3 @@
-require 'rmagick'
 require_relative('lib/romutl')
 require_relative('lib/vramutl')
 require_relative('lib/img')
@@ -41,9 +40,7 @@ tiles2file=->tiles,file,dotsize=2{
       }
     }
   }
-  img=Magick::Image.new(csize,csize)
-  img.store_pixels(0,0,csize,csize,canvas)
-  img.write(file)
+  ImgManager.save(file,canvas,csize,csize)
 }
 
 romfile=ARGV[0]||SepRom::DEFAULT_ROM_PATH

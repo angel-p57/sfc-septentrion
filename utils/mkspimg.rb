@@ -1,4 +1,3 @@
-require 'rmagick'
 require_relative('lib/romutl')
 require_relative('lib/vramutl')
 require_relative('lib/img')
@@ -45,9 +44,7 @@ tiles2file=->tiles,file,pid,dotsize=3{
       }
     }
   }
-  img=Magick::Image.new(csizeh,csizev)
-  img.store_pixels(0,0,csizeh,csizev,canvas)
-  img.write(file)
+  ImgManager.save(file,canvas,csizeh,csizev)
 }
 
 sptiles=vmgr.get4bpptiles8(0)

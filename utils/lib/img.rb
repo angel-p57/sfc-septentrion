@@ -6,5 +6,10 @@ class ImgManager
       Magick::Pixel.new(r5*2048, g5*2048, b5*2048, 65535) :
       Magick::Pixel.new(r5*2048, g5*2048, b5*2048)
   end
+  def self.save(filename, canvas, sizeh, sizev)
+    img=Magick::Image.new(sizeh,sizev)
+    img.store_pixels(0,0,sizeh,sizev,canvas)
+    img.write(filename)
+  end
 end
 
