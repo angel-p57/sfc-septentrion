@@ -1,10 +1,9 @@
 require 'rmagick'
 require_relative('lib/romutl')
 require_relative('lib/vramutl')
+require_relative('lib/img')
 
-mkpixel=->r,g,b{
-  Magick::Pixel.new(r*2048, g*2048, b*2048)
-}
+mkpixel=->r,g,b,t=false{ ImgManager.mkpixel(r,g,b,t) }
 pallet=[
   nil,
   mkpixel[ 8, 3,31],

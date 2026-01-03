@@ -2,16 +2,13 @@ require 'rmagick'
 require_relative('lib/romutl')
 require_relative('lib/vramutl')
 require_relative('lib/sputl')
+require_relative('lib/img')
 
 romfile=ARGV[0]||SepRom::DEFAULT_ROM_PATH
 romobj=SepRom.new(romfile)
 vmgr=VRAMmgr.new(romobj)
 
-mkpixel=->r,g,b,t=false{
-  t ?
-    Magick::Pixel.new(r*2048, g*2048, b*2048, 65535) :
-    Magick::Pixel.new(r*2048, g*2048, b*2048)
-}
+mkpixel=->r,g,b,t=false{ ImgManager.mkpixel(r,g,b,t) }
 bg=mkpixel[10,10,10,true]
 rline=mkpixel[31,0,0]
 blank1=mkpixel[16,16,16]
