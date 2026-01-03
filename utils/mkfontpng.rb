@@ -2,14 +2,13 @@ require_relative('lib/romutl')
 require_relative('lib/vramutl')
 require_relative('lib/img')
 
-mkpixel=->r,g,b,t=false{ ImgManager.mkpixel(r,g,b,t) }
 pallet=[
-  mkpixel[ 0, 0, 0],
-  mkpixel[ 8, 3,31],
-  mkpixel[ 3, 1,31],
-  mkpixel[31,31,31],
-  mkpixel[20,20,20],
-  mkpixel[31,31,31]
+  ImgManager.mkpixel( 0, 0, 0),
+  ImgManager.mkpixel( 8, 3,31),
+  ImgManager.mkpixel( 3, 1,31),
+  ImgManager.mkpixel(31,31,31),
+  ImgManager.mkpixel(20,20,20),
+  ImgManager.mkpixel(31,31,31)
 ]
 btile=[[4]*16]*16
 wtile=[[5]*16]*16

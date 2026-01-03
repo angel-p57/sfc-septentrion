@@ -2,19 +2,20 @@ require_relative('lib/romutl')
 require_relative('lib/vramutl')
 require_relative('lib/img')
 
-mkpixel=->r,g,b,t=false{ ImgManager.mkpixel(r,g,b,t) }
-
 romfile=ARGV[0]||SepRom::DEFAULT_ROM_PATH
 romobj=SepRom.new(romfile)
 vmgr=VRAMmgr.new(romobj)
 
-blank=mkpixel[16,16,16]
+blank=ImgManager.mkpixel(16,16,16)
 pallets=9.times.map{|pid|
   vmgr.getspcolors(pid < 8 ? pid : 0).map{|r|
-    r && mkpixel[*r]
+    r && ImgManager.mkpixel(*r)
   } << blank
 }
-pallets[8][12,2]=[mkpixel[31,31,31],mkpixel[0,0,31]]
+pallets[8][12,2]=[
+  ImgManager.mkpixel(31,31,31),
+  ImgManager.mkpixel(0,0,31)
+]
 btile=[[16]*8]*8
 
 tiles2file=->tiles,file,pid,dotsize=3{

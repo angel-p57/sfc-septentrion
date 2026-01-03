@@ -7,18 +7,18 @@ romfile=ARGV[0]||SepRom::DEFAULT_ROM_PATH
 romobj=SepRom.new(romfile)
 vmgr=VRAMmgr.new(romobj)
 
-mkpixel=->r,g,b,t=false{ ImgManager.mkpixel(r,g,b,t) }
-rline=mkpixel[31,0,0]
-blank1=mkpixel[16,16,16]
-blank2=mkpixel[8,8,8]
-blank3=mkpixel[30,16,24]
 ipallet=[
   nil,
   *8.times.flat_map{|pid|
-    vmgr.getspcolors(pid)[1..-1].map{|r| mkpixel[*r] }
+    vmgr.getspcolors(pid)[1..-1].map{|r|
+      ImgManager.mkpixel(*r)
+    }
   },
-  blank1,blank2,blank3
+  ImgManager.mkpixel(16,16,16),
+  ImgManager.mkpixel(8,8,8),
+  ImgManager.mkpixel(30,16,24),
 ]
+rline=ImgManager.mkpixel(31,0,0)
 
 tiles2file=->tiles,file,dotsize=3{
   rown=tiles.size/16
