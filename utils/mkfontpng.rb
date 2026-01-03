@@ -1,50 +1,31 @@
-require 'rmagick'
 require_relative('lib/romutl')
 require_relative('lib/vramutl')
+require_relative('lib/img')
 
-mkpixel=->r,g,b{
-  Magick::Pixel.new(r*2048, g*2048, b*2048)
-}
 pallet=[
-  nil,
-  mkpixel[ 8, 3,31],
-  mkpixel[ 3, 1,31],
-  mkpixel[31,31,31],
-  mkpixel[20,20,20],
+  ImgManager.mkpixel( 0, 0, 0),
+  ImgManager.mkpixel( 8, 3,31),
+  ImgManager.mkpixel( 3, 1,31),
+  ImgManager.mkpixel(31,31,31),
+  ImgManager.mkpixel(20,20,20),
+  ImgManager.mkpixel(31,31,31)
 ]
-lcol=mkpixel[ 0,20,20]
-bg=mkpixel[0,0,0]
-blank=mkpixel[31,31,31]
 btile=[[4]*16]*16
+wtile=[[5]*16]*16
 
 tiles2file=->tiles,file,dotsize=2{
-  csize=256*dotsize+17
-  canvas=csize.times.flat_map{|i|
-    i%(dotsize*16+1)==0 ? [lcol]*csize : [lcol,*[bg]*(16*dotsize)]*16+[lcol]
-  }
-  (240*dotsize+16...csize).each{|i|
-    canvas[i*csize+192*dotsize+13...i*csize+csize]=[blank]*(64*dotsize+4)
-  }
-  252.times{|i|
-    t=tiles[i] || btile
-    r0=i/16*(dotsize*16+1)+1
-    c0=i%16*(dotsize*16+1)+1
-    16.times{|j|
-      r=r0+j*dotsize
-      16.times{|k|
-        b=r*csize+c0+k*dotsize
-        color=pallet[t[j][k]] or next
-        dotsize.times{|n1|
-          dotsize.times{|n2|
-            canvas[b+csize*n1+n2]=color
-          }
-        }
+  canvas=TiledCanvas.new(16,dotsize,16,16)
+  256.times{|k|
+    t=k<252 ? tiles[k] || btile : wtile
+    win=canvas.makewindow(k/16,k%16)
+    16.times{|i|
+      16.times{|j|
+        color=pallet[t[i][j]] or next
+        win[i,j]=color
       }
     }
   }
-  img=Magick::Image.new(csize,csize)
-  img.store_pixels(0,0,csize,csize,canvas)
-  img.write(file)
+  canvas.save(file)
 }
 
 romfile=ARGV[0]||SepRom::DEFAULT_ROM_PATH
