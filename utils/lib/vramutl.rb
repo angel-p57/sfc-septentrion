@@ -42,6 +42,17 @@ class VRAMmgr
       parts[0].zip(parts[1]).map{|(r1,r2)| r1+r2 } + parts[2].zip(parts[3]).map{|(r1,r2)| r1+r2 }
     }
   end
+  def getmode7tiles(id, size=nil)
+    raw=getraw_unc(id)
+    if size
+      raise "invalid size #{size} for id #{id}" if size>raw.size
+      raw.pop(raw.size-size) if size<raw.size
+    end
+    warn "invalid raw size #{raw.size} for id #{id}" unless raw.size%64==0
+    raw.each_slice(64).map{|r|
+      r.each_slice(8).to_a
+    }
+  end
   def word2r5g5b5(x)
     [x&31, (x>>5)&31, x>>10]
   end
@@ -57,5 +68,46 @@ class VRAMmgr
       nil,
       *words.map{|x| word2r5g5b5(x) }
     ]
+  end
+  def getbg7basecolors(pid)
+    case pid
+    when 1..3
+      bank,addr=0x8b,0x8000+(pid-1)*0xf0
+    when 11,13
+      bank,addr=getcgsetaddr(0)
+    when 34
+      bank,addr=0x86,0xef00+(27-10)*240
+    when 10..26
+      bank,addr=0x86,0xef00+(pid-10)*240
+    else
+      raise ValueError.new("wrong plase id #{pid}")
+    end
+    (0..7).flat_map{|pid|
+      words=@rom.getwords(bank, addr+pid*30, 15)
+      [
+        [0,0,0],
+        *words.map{|x| word2r5g5b5(x) }
+      ]
+    }
+  end
+  def getbg7rotcolors(pid,vid,theater=false)
+    bank=0x8f
+    if pid==24 && theater
+      addroff=5040
+      cnum=8
+    else
+      addroff=240*(
+        pid==34 ? 17 :
+        pid>=10 ? pid-10 : pid+17
+      )
+      cnum=15
+    end
+    @rom.getwords(
+      bank,
+      0x8000+addroff+vid*cnum*2,
+      cnum
+    ).map{|x|
+      word2r5g5b5(x)
+    }
   end
 end
