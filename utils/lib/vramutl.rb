@@ -11,6 +11,9 @@ class VRAMmgr
       @rom.uncompress(*@rom.getlword(PTR_BANK,PTR_BASE+id*3))[0]
     end
   end
+  def gettmap(id, another=false)
+    getraw_unc(id+57, another)
+  end
   def get2bpptiles8(id)
     raw=getraw_unc(id)
     warn "invalid raw size #{raw.size} for id #{id}" unless raw.size%16==0
@@ -111,5 +114,14 @@ class VRAMmgr
     ).map{|x|
       word2r5g5b5(x)
     }
+  end
+  def getmainblockmap(i)
+    bank=0x92
+    bytes=@rom.getbytes(bank,0x8000+i*32,32)
+    if i==0
+      bytes.each_slice(16).map{|r| r[3..12] }
+    else
+      bytes.each_slice(16).map{|r| r[2..13] }
+    end
   end
 end
