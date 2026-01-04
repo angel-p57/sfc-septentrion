@@ -30,23 +30,26 @@ class TiledCanvas
       }
     end
   end
-  def initialize(tsize,dsize,rownum,colnum)
+  def initialize(tsize,dsize,rownum,colnum,sline=true)
+    @slinew=sline ? 1 : 0
     @dsize=dsize
     @tsize=tsize
     @rownum=rownum
     @colnum=colnum
-    @tdotnum=@tsize*@dsize+1
-    @vsize=@tdotnum*rownum+1
-    @hsize=@tdotnum*colnum+1
+    @tdotnum=@tsize*@dsize+@slinew
+    @vsize=@tdotnum*rownum+@slinew
+    @hsize=@tdotnum*colnum+@slinew
     @pxlist=@vsize.times.flat_map{|i|
-      i % @tdotnum == 0 ?
-        [@@linecolor]*@hsize :
-        [@@linecolor,*[@@bgcolor]*(@tdotnum-1)]*@colnum+[@@linecolor]
+      sline ?
+        i % @tdotnum == 0 ?
+          [@@linecolor]*@hsize :
+          [@@linecolor,*[@@bgcolor]*(@tdotnum-1)]*@colnum+[@@linecolor] :
+        [@@bgcolor]*@hsize
     }
   end
   attr_reader :dsize
   def []=(trow,tcol,prow,pcol,i,j,px)
-    @pxlist[(trow*@tdotnum+prow*@dsize+i+1)*@hsize+tcol*@tdotnum+pcol*@dsize+j+1]=px
+    @pxlist[(trow*@tdotnum+prow*@dsize+i+@slinew)*@hsize+tcol*@tdotnum+pcol*@dsize+j+@slinew]=px
   end
   def makewindow(trow,tcol)
     TileWindow.new(self,trow,tcol)
