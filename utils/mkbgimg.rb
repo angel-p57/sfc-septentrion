@@ -8,6 +8,16 @@ vmgr=VRAMmgr.new(romobj)
 
 arrowcolor=ImgManager.mkpixel(31,0,0)
 pids=[1,2,3,*10..26,34,253]
+prolog_pidmap={
+  1=>35,
+  2=>36,
+  3=>37,
+  14=>38,
+  16=>39,
+  19=>40,
+  20=>41,
+  21=>42,
+}
 pallets=pids.each_with_object({}){|pid,h|
   h[pid]=pallet=vmgr.getbg7basecolors(pid).map{|r|
     ImgManager.mkpixel(*r)
@@ -53,4 +63,7 @@ pids.each{|pid|
     pid,
     pid==253 ? "bgbase-map.png" : "bgbase-%02d.png"%pid
   ]
+  prolog_pid=prolog_pidmap[pid] or next
+  bgtiles_ex=vmgr.getmode7tiles(prolog_pid, 0x1000)
+  tiles2file[bgtiles_ex,pid,"bgex-%02d.png"%pid]
 }
