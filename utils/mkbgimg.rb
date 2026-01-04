@@ -7,11 +7,12 @@ romobj=SepRom.new(romfile)
 vmgr=VRAMmgr.new(romobj)
 
 arrowcolor=ImgManager.mkpixel(31,0,0)
-pids=[1,2,3,*10..26,34]
+pids=[1,2,3,*10..26,34,253]
 pallets=pids.each_with_object({}){|pid,h|
   h[pid]=pallet=vmgr.getbg7basecolors(pid).map{|r|
     ImgManager.mkpixel(*r)
   }
+  next if pid==253
   pallet[7]=arrowcolor if pid>3
   if pid==24  # theater
     vmgr.getbg7rotcolors(pid,0,true).each_with_index{|r,i|
@@ -43,6 +44,13 @@ tiles2file=->tiles,pid,file,dotsize=3{
 }
 
 pids.each{|pid|
-  bgtiles=vmgr.getmode7tiles(pid, 0x4000)
-  tiles2file[bgtiles,pid,"bgbase-%02d.png"%pid]
+  bgtiles=vmgr.getmode7tiles(
+    pid,
+    pid==253 ? 0x3000 : 0x4000
+  )
+  tiles2file[
+    bgtiles,
+    pid,
+    pid==253 ? "bgbase-map.png" : "bgbase-%02d.png"%pid
+  ]
 }

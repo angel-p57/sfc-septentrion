@@ -79,6 +79,8 @@ class VRAMmgr
       bank,addr=0x86,0xef00+(27-10)*240
     when 10..26
       bank,addr=0x86,0xef00+(pid-10)*240
+    when 253  # map
+      bank,addr=getcgsetaddr(3)
     else
       raise ValueError.new("wrong plase id #{pid}")
     end
