@@ -1,18 +1,35 @@
 class VRAMmgr
   PTR_BANK=0x80
   PTR_BASE=0xf872
+  PTR_BASE_ANOTHER=0xfe4b
   def initialize(romobj)
     @rom=romobj
+    @tmanother_map={
+      74=>0, 75=>1,
+      76=>2, 77=>3,
+      78=>4, 79=>5,
+      80=>6, 81=>7,
+      82=>8,
+      87=>9, 88=>10, 89=>11,
+      90=>12,
+      108=>13, 109=>14,
+      112=>15, 113=>16, 114=>17,
+      115=>18, 116=>19, 117=>20,
+      123=>21, 124=>22,
+      133=>23, 134=>24,
+      158=>25
+    }
   end
   def getraw_unc(id, another=false)
     if another
-      raise NotImplementedError.new
+      id_conv=@tmanother_map[id] or raise IndexError.new("no another tilemap for tmid #{id}")
+      @rom.uncompress(*@rom.getlword(PTR_BANK,PTR_BASE_ANOTHER+id_conv*3))[0]
     else
       @rom.uncompress(*@rom.getlword(PTR_BANK,PTR_BASE+id*3))[0]
     end
   end
   def gettmap(id, another=false)
-    getraw_unc(id+57, another)
+    another ? getraw_unc(id, true) : getraw_unc(id+57)
   end
   def get2bpptiles8(id)
     raw=getraw_unc(id)
@@ -123,5 +140,13 @@ class VRAMmgr
     else
       bytes.each_slice(16).map{|r| r[2..13] }
     end
+  end
+  TmapInfo=Struct.new(:pid,:rown,:coln,:tmbase){
+    # WIP
+  }
+  def gettmapinfo(rid)
+    bank=0x92
+    bytes=@rom.getbytes(bank,0x8060+rid*3,3)
+    TmapInfo.new(bytes[0],bytes[1]&0xf,bytes[1]>>4,bytes[2]+43)
   end
 end
