@@ -25,7 +25,10 @@ class BG7Manager
     pallet=@pallets[pid]=@vmgr.getbg7basecolors(pid).map{|r|
       @imgmgr.mkpixel(*r)
     }
-    return pallet if pid==253
+    if pid==253
+      pallet[94]=@imgmgr.mkpixel(31,0,0) # ボイラー室前入り口
+      return pallet
+    end
     pallet[7]=@arrowcolor if pid>3
     if pid==24  # theater
       @vmgr.getbg7rotcolors(pid,0,true).each_with_index{|r,i|
@@ -40,7 +43,7 @@ class BG7Manager
   def getcoloredtiles(pid,prologue=false)
     bgtiles=@vmgr.getmode7tiles(
       pid,
-      pid==253 ? 0x3000 : 0x4000
+      pid==253 ? 0x3400 : 0x4000
     )
     if prologue && haveanothertile(pid)
       bgtiles[192,64]=@vmgr.getmode7tiles(@prolog_pidmap[pid], 0x1000)
