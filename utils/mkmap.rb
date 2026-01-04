@@ -42,6 +42,15 @@ tiles2file=->tbase,tmaps,bmap,file,dotsize=2{
   canvas.save(file)
 }
 
+# for map
+tiles2file[
+  bg7mgr.getcoloredtiles(253),
+  [vmgr.gettmap(197)],
+  [[1]],
+  "mapimg.png"
+]
+
+# for rooms
 rid_aliases={
   3=>5, 42=>43, 44=>45, 46=>47
 }
@@ -63,6 +72,8 @@ rid_prologue=Set.new([9,10,11,12,13,16,17,26,28,29,32,37,51])
     tiles2file[tiles,tmaps,bmap,"maproom-#{fid}.png"]
   end
 }
+
+# for main area
 (0..2).each{|i|
   bmap=vmgr.getmainblockmap(i)
   [false,true].each{|prologue|
